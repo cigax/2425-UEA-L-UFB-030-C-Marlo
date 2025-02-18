@@ -26,7 +26,6 @@ class Producto:
     def __str__(self):
         return f"ID: {self.id_producto} | Nombre: {self.nombre} | Cantidad: {self.cantidad} | Precio: ${self.precio:.2f}"
 
-
 class Inventario:
     def __init__(self):
         self.productos = []
