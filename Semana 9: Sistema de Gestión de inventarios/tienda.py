@@ -41,16 +41,14 @@ class Inventario:
     ARCHIVO_INVENTARIO = "inventario.txt"
 
     def __init__(self):
-        self.productos = {}
+        self.productos = {}  # Cambio a diccionario
         self.cargar_desde_archivo()
 
     def guardar_en_archivo(self):
         try:
             with open(self.ARCHIVO_INVENTARIO, "w") as archivo:
-                json.dump([p.to_dict() for p in self.productos], archivo)
+                json.dump({k: v.to_dict() for k, v in self.productos.items()}, archivo)
             print("Inventario guardado correctamente.")
-        except PermissionError:
-            print("Error: No tienes permisos para escribir en el archivo.")
         except Exception as e:
             print(f"Error inesperado al guardar el inventario: {e}")
 
@@ -60,24 +58,12 @@ class Inventario:
         try:
             with open(self.ARCHIVO_INVENTARIO, "r") as archivo:
                 datos = json.load(archivo)
-                self.productos = [Producto.from_dict(d) for d in datos]
+                self.productos = {d["id"]: Producto.from_dict(d) for d in datos.values()}
                 print("Inventario cargado correctamente.")
-        except FileNotFoundError:
-            print("El archivo de inventario no existe. Se creará uno nuevo.")
-        except json.JSONDecodeError:
-            print("Error: Archivo de inventario corrupto. Se ignorará y se creará uno nuevo.")
         except Exception as e:
-            print(f"Error inesperado al cargar el inventario: {e}")
+            print(f"Error al cargar el inventario: {e}")
 
     def agregar_producto(self, producto):
-        if not os.path.exists(self.ARCHIVO_INVENTARIO):
-            try:
-                with open(self.ARCHIVO_INVENTARIO, "w") as archivo:
-                    json.dump([], archivo)
-            except Exception as e:
-                print(f"No se pudo crear el archivo: {e}")
-                return
-
         if producto.obtener_id() in self.productos:
             print("Error: Ya existe un producto con este ID.")
             return
@@ -88,14 +74,10 @@ class Inventario:
     def eliminar_producto(self, id_producto):
         if id_producto in self.productos:
             del self.productos[id_producto]
-            print("Producto eliminado correctamente.")
-
+            self.guardar_en_archivo()
+            print("Producto eliminado.")
         else:
             print("Error: Producto no encontrado.")
-
-
-        self.guardar_en_archivo()
-        print("Producto eliminado.")
 
     def actualizar_producto(self, id_producto, cantidad=None, precio=None):
         if id_producto in self.productos:
@@ -104,19 +86,19 @@ class Inventario:
                 producto.set_cantidad(cantidad)
             if precio is not None:
                 producto.set_precio(precio)
-            print("Producto actualizado correctamente.")
+            self.guardar_en_archivo()
+            print("Producto actualizado.")
         else:
             print("Error: Producto no encontrado.")
 
     def buscar_por_nombre(self, nombre):
-        resultados = [p for p in self.productos.values() if nombre.lower() in p.obtener_nombre().lower()]
-        return resultados
+        return [p for p in self.productos.values() if nombre.lower() in p.obtener_nombre().lower()]
 
     def mostrar_productos(self):
         if not self.productos:
             print("El inventario está vacío.")
         else:
-            for producto in self.productos:
+            for producto in self.productos.values():
                 print(producto)
 
 

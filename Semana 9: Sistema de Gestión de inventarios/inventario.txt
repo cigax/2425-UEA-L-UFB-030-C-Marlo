@@ -1,0 +1,1 @@
+[{"id": "715232456", "nombre": "Semillas de Girasol con Sal", "cantidad": 30, "precio": 0.25}, {"id": "597210", "nombre": "CeraBE", "cantidad": 15, "precio": 13.99}]
