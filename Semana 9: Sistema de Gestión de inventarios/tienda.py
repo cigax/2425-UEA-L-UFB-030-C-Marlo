@@ -41,7 +41,7 @@ class Inventario:
     ARCHIVO_INVENTARIO = "inventario.txt"
 
     def __init__(self):
-        self.productos = []
+        self.productos = {}
         self.cargar_desde_archivo()
 
     def guardar_en_archivo(self):
@@ -78,32 +78,38 @@ class Inventario:
                 print(f"No se pudo crear el archivo: {e}")
                 return
 
-        if any(p.obtener_id() == producto.obtener_id() for p in self.productos):
+        if producto.obtener_id() in self.productos:
             print("Error: Ya existe un producto con este ID.")
             return
-        self.productos.append(producto)
+        self.productos[producto.obtener_id()] = producto
         self.guardar_en_archivo()
         print("Producto agregado con éxito.")
 
     def eliminar_producto(self, id_producto):
-        self.productos = [p for p in self.productos if p.obtener_id() != id_producto]
+        if id_producto in self.productos:
+            del self.productos[id_producto]
+            print("Producto eliminado correctamente.")
+
+        else:
+            print("Error: Producto no encontrado.")
+
+
         self.guardar_en_archivo()
         print("Producto eliminado.")
 
     def actualizar_producto(self, id_producto, cantidad=None, precio=None):
-        for producto in self.productos:
-            if producto.obtener_id() == id_producto:
-                if cantidad is not None:
-                    producto.set_cantidad(cantidad)
-                if precio is not None:
-                    producto.set_precio(precio)
-                self.guardar_en_archivo()
-                print("Producto actualizado.")
-                return
-        print("Error: Producto no encontrado.")
+        if id_producto in self.productos:
+            producto = self.productos[id_producto]
+            if cantidad is not None:
+                producto.set_cantidad(cantidad)
+            if precio is not None:
+                producto.set_precio(precio)
+            print("Producto actualizado correctamente.")
+        else:
+            print("Error: Producto no encontrado.")
 
     def buscar_por_nombre(self, nombre):
-        resultados = [p for p in self.productos if nombre.lower() in p.obtener_nombre().lower()]
+        resultados = [p for p in self.productos.values() if nombre.lower() in p.obtener_nombre().lower()]
         return resultados
 
     def mostrar_productos(self):
